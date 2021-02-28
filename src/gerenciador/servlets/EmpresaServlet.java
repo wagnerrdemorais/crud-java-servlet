@@ -25,15 +25,30 @@ public class EmpresaServlet extends HttpServlet {
 		Banco banco = new Banco();
 		List<Empresa> empresas = banco.getEmpresas();
 
-//		Gson gson = new Gson();
-//		String json = gson.toJson(empresas);
-//		response.setContentType("application/json");
-//		response.getWriter().print(json);
+		String valor = request.getHeader("accept");
 
+		if (valor.endsWith("json")) {
+			toJson(response, empresas);
+		} else if (valor.contains("xml")) {
+			toXml(response, empresas);
+		} else {
+			response.setContentType("application/json");
+			response.getWriter().print("noContent");
+		}
+
+	}
+
+	private void toJson(HttpServletResponse response, List<Empresa> empresas) throws IOException {
+		Gson gson = new Gson();
+		String json = gson.toJson(empresas);
+		response.setContentType("application/json");
+		response.getWriter().print(json);
+	}
+
+	private void toXml(HttpServletResponse response, List<Empresa> empresas) throws IOException {
 		XStream xstream = new XStream();
 		xstream.alias("empresa", Empresa.class);
 		String xml = xstream.toXML(empresas);
-
 		response.setContentType("application/xml");
 		response.getWriter().print(xml);
 	}
